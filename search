@@ -1,0 +1,14 @@
+#!/bin/bash
+
+key_file=$1;
+data_file=$2;
+while read line 
+do 
+	name=$line
+	grep $name < $data_file
+done < $key_file
+
+exit 0;
+
+##OR##
+awk "`cat key.txt | awk '{ printf "\/" $0 "\/\\n" }'`" test.xml

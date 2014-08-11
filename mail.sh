@@ -5,8 +5,8 @@ from_unm=""
 to_unm=""
 from_passwd=""
 to_passwd=""
-from_imap="194.126.200.40"
-to_imap="85.159.212.242"
+from_imap=$2
+to_imap=$3
 
 fail_log="fail.log"
 

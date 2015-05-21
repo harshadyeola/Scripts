@@ -28,8 +28,12 @@ if [ ! -d ${GIT_DIR}.git ]; then
     git init && git add . && git commit -m "freeze commit" || throw_error "failed to initialize reset env" $?
 fi
 
+
 # take database backup
 if [ ! -f ${SITE_DB_BACKUP_PATH} ]; then 
+    if [ ! -d "${SITE_WEBROOT}/reset-backup/" ]; then
+        mkdir -p "${SITE_WEBROOT}/reset-backup/"
+    fi
     mysqldump -u ${SITE_DB_USER} -p${SITE_DB_PASS} ${SITE_DB_NAME} > ${SITE_DB_BACKUP_PATH} || throw_error "failed to take database backup" $?
 fi
 

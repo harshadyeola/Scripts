@@ -5,7 +5,7 @@
 # and reset the environment on next run.
 
 
-
+# Initialize variables
 SITE_WEBROOT='/var/www/test.com'
 SITE_DB_NAME=$(grep DB_NAME ${SITE_WEBROOT}/wp-config.php | cut -d "'" -f 4)
 SITE_DB_USER=$(grep DB_USER ${SITE_WEBROOT}/wp-config.php | cut -d "'" -f 4)

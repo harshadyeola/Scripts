@@ -24,7 +24,7 @@ function echo_output()
 
 # define repo path and branch
 
-/etc-config repo
+# /etc-config repo
 repos['etc-config']='/etc'
 branch['etc-config']='master'
 

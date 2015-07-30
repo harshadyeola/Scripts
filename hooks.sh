@@ -24,9 +24,13 @@ function echo_output()
 
 # define repo path and branch
 
-# /etc-config repo
+# etc-config repo
 repos['etc-config']='/etc'
 branch['etc-config']='master'
+
+# nginx-com-wp-composer repo
+repos['nginx-com-wp-composer']='/var/www/wp.nginx.com'
+branch['nginx-com-wp-composer']='master'
 
 
 # repos['etc-config']="/home/harshad/Github/easyengine"
@@ -45,5 +49,11 @@ for repo in ${!repos[@]}; do
         cd $path &>>$LOG || error "cd $path" $?
         git reset --hard HEAD  &>>$LOG || error "git reset --hard HEAD" $?
         git pull origin ${git_branch} &>>$LOG || error "git pull origin ${git_branch}" $?
+
+        if [ "$path" == "/etc" ]; then
+            service nginx reload &>>$LOG || error "service nginx reload" $?
+            service php5-fpm reload &&>>$LOG || error "service php5-fpm reload" $?
+            service mysql reload &&>>$LOG || error "service mysql reload" $?
+        fi
     fi
 done

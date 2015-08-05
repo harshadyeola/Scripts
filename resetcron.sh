@@ -79,10 +79,10 @@ main(){
         mysqldump -u ${SITE_DB_USER} -p${SITE_DB_PASS} ${SITE_DB_NAME} > ${SITE_DB_BACKUP_PATH} || throw_error "failed to take database backup" $?
 
         # commit database changes
-        git commit -m "[$(date)] : database renewed" ${SITE_DB_BACKUP_PATH} || "Unable to commit database changes" $?
+        git commit -m "[$(date)] : database renewed" ${SITE_DB_BACKUP_PATH} &>>$LOG_PATH || "Unable to commit database changes" $?
 
         # commit other changes in webroot
-        git add -A && git commit -am "[$(date)] : webroot renewed" || throw_error "Unable to commit webroot changes" $?
+        git add -A && git commit -am "[$(date)] : webroot renewed" &>>$LOG_PATH || throw_error "Unable to commit webroot changes" $?
     }   
 
     $1 

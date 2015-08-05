@@ -8,7 +8,7 @@
 
 
 throw_error() {
-	echo $1 | tee -ai $LOG_PATH
+	echo "[$(date)] : $1" | tee -ai $LOG_PATH
 	exit $2;
 }
 
@@ -19,7 +19,7 @@ main(){
     SITE_DB_NAME=$(grep DB_NAME ${SITE_WEBROOT}/wp-config.php | cut -d "'" -f 4)
     SITE_DB_USER=$(grep DB_USER ${SITE_WEBROOT}/wp-config.php | cut -d "'" -f 4)
     SITE_DB_PASS=$(grep DB_PASS ${SITE_WEBROOT}/wp-config.php | cut -d "'" -f 4)
-    SITE_DB_BACKUP_PATH="${SITE_WEBROOT}/reset-backup/example_com.sql"
+    SITE_DB_BACKUP_PATH="resetcron/example_com.sql"
     GIT_DIR="${SITE_WEBROOT}"
     LOG_PATH='/var/log/resetcron.log'
 
@@ -27,7 +27,7 @@ main(){
     init(){
 
         # Add .gitignore
-        printf "*\n!htdocs/\n!htdocs/**\n!reset-backup/\n!reset-backup/example_com.sql" > ${SITE_WEBROOT}/.gitignore
+        printf "*\n!htdocs/\n!htdocs/**\n!resetcron/\n!resetcron/example_com.sql" > ${SITE_WEBROOT}/.gitignore
 
         # Initialize git repo
         if [ ! -d ${GIT_DIR}/.git ]; then
@@ -35,13 +35,13 @@ main(){
             git init
 
             # take database backup
-            if [ ! -f ${SITE_DB_BACKUP_PATH} ]; then 
-                if [ ! -d "${SITE_WEBROOT}/reset-backup/" ]; then
-                    mkdir -p "${SITE_WEBROOT}/reset-backup/"
+            if [ ! -f ${SITE_WEBROOT}/${SITE_DB_BACKUP_PATH} ]; then 
+                if [ ! -d "${SITE_WEBROOT}/resetcron/" ]; then
+                    mkdir -p "${SITE_WEBROOT}/resetcron/"
                 fi
-                mysqldump -u ${SITE_DB_USER} -p${SITE_DB_PASS} ${SITE_DB_NAME} > ${SITE_DB_BACKUP_PATH} || throw_error "failed to take database backup" $?
+                su -c "mysqldump -u ${SITE_DB_USER} -p${SITE_DB_PASS} ${SITE_DB_NAME} > ${SITE_WEBROOT}/${SITE_DB_BACKUP_PATH}" - www-data || throw_error "failed to take database backup" $?
             fi
-            git add .
+            su -c "git add ." - www-data
             git commit -am "[$(date)] : Initialized resetcron"
         else
             throw_error "already a git repo" $?
@@ -52,6 +52,7 @@ main(){
     reset(){
 
         # START RESETING
+        cd ${GIT_DIR}
 
         ## restore database 
         if [ -f ${SITE_DB_BACKUP_PATH} ]; then
@@ -61,28 +62,30 @@ main(){
         fi
 
         ## reset filesystem
-        if [ -d ${GIT_DIR} ]; then
+        if [ -d ${GIT_DIR}/.git ]; then
             cd ${GIT_DIR};
-            git reset HEAD --hard && git clean -fd  2>&1>>$LOG_PATH || throw_error "git reset failed" $?;
+            git reset HEAD --hard && git clean -fd &>>$LOG_PATH || throw_error "git reset failed" $?;
         else 
-            throw_error "${GIT_DIR} not found" 2;
+            throw_error "${GIT_DIR}/.git not found" 2;
         fi
 
     }
 
     backup(){
 
+        cd ${GIT_DIR}
+
         # take latest database backup
         mysqldump -u ${SITE_DB_USER} -p${SITE_DB_PASS} ${SITE_DB_NAME} > ${SITE_DB_BACKUP_PATH} || throw_error "failed to take database backup" $?
 
         # commit database changes
-        git commit -m "[$date] : database renewed"
+        git commit -m "[$(date)] : database renewed" ${SITE_DB_BACKUP_PATH} || "Unable to commit database changes" $?
 
         # commit other changes in webroot
-        git commit -am "[$date] : webroot renewed"
+        git add -A && git commit -am "[$(date)] : webroot renewed" || throw_error "Unable to commit webroot changes" $?
     }   
 
-    $1     
+    $1 
 }
 
 if [[  "$#" -gt 3 ]]; then

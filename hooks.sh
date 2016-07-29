@@ -28,9 +28,9 @@ function echo_output()
 repos['etc-config']='/etc'
 branch['etc-config']='master'
 
-# nginx-com-wp-composer repo
-repos['nginx-com-wp-composer']='/var/www/wp.nginx.com'
-branch['nginx-com-wp-composer']='master'
+# example-com-wp-composer repo
+repos['example-com-wp-composer']='/var/www/wp.example.com'
+branch['example-com-wp-composer']='master'
 
 
 # repos['etc-config']="/home/harshad/Github/easyengine"

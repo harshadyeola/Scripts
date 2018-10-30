@@ -1,0 +1,17 @@
+mkfs -t ext4 /dev/xvdb
+
+mount /dev/xvdb /mnt/xvdb
+
+mkdir /mnt/xvdb/tmp
+mkdir /mnt/xvdb/swap
+
+dd if=/dev/zero of=/mnt/xvdb/swap/swapfile bs=1024 count=2048k
+
+mkswap /mnt/xvdb/swap/swapfile
+
+^_^[root@ip-172-31-53-216:~]# mkswap /mnt/xvdb/swap/swapfile
+Setting up swapspace version 1, size = 2097148 KiB
+no label, UUID=ceb137d1-e144-41ac-abfa-fa7ed6f1a5da
+
+
+swapon /mnt/xvdb/swap/swapfile

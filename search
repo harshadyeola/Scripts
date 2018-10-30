@@ -11,4 +11,4 @@ done < $key_file
 exit 0;
 
 ##OR##
-awk "`cat key.txt | awk '{ printf "\/" $0 "\/\\n" }'`" test.xml
+awk "`cat $1 | awk '{ printf "\/" $0 "\/\\n" }'`" $2
